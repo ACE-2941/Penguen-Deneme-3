@@ -77,6 +77,7 @@ function update() {
     penguin.y += penguin.velocityY;
     penguin.velocityY += penguin.gravity;
 
+    // Yer Kontrolü
     if (penguin.y > 500) {
         penguin.y = 500;
         penguin.isJumping = false;
@@ -85,11 +86,11 @@ function update() {
         penguin.maxFrames = 5;
     }
 
-    // --- EN KENARA GİTME AYARI ---
-    // Eğer penguen hala kenara değmiyorsa -50 ve +50 rakamlarını büyütebilirsin.
-    if (penguin.x < -50) penguin.x = -50;
-    if (penguin.x > canvas.width - penguin.w + 50) penguin.x = canvas.width - penguin.w + 50;
+    // KENAR KONTROLÜ (Tam yanaşması için sınırları esnettim)
+    if (penguin.x < -55) penguin.x = -55;
+    if (penguin.x > canvas.width - penguin.w + 55) penguin.x = canvas.width - penguin.w + 55;
 
+    // DEĞİŞKEN TANIMLAMALARI (Sadece birer kez yapıldı)
     let oyunHizi = (puan < 100) ? 3 : 3 + (puan - 100) * 0.05;
     let uretimSikligi = (puan < 100) ? 80 : 55;
 
