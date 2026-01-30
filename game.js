@@ -20,7 +20,7 @@ buzImg.src = "assets/buz.png";
 const penguin = {
     x: 130, 
     y: 500,
-    w: 100, 
+    w: 50, 
     h: 100,
     frameX: 0,
     frameY: 0,
