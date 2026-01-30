@@ -88,12 +88,16 @@ function update() {
     }
 
     // --- KENAR DÜZELTMESİ BURADA ---
-    // Sol tarafa tam yanaşması için (Görselindeki boşluğa göre -40'a kadar çekebilirsin)
-    if (penguin.x < -35) penguin.x = -35; 
-    
-    // Sağ tarafa tam yanaşması için
-    if (penguin.x > canvas.width - penguin.w + 35) penguin.x = canvas.width - penguin.w + 35;
-    // -------------------------------
+    // SOL KENAR: Penguenin yarısı dışarı çıkana kadar izin verir (Tam kenara dayanır)
+    if (penguin.x < -45) {
+        penguin.x = -45;
+    }
+
+    // SAĞ KENAR: Penguenin yarısı dışarı çıkana kadar izin verir (Tam kenara dayanır)
+    // 360 (ekran genişliği) - 100 (penguen) + 45 (pay) = 305
+    if (penguin.x > canvas.width - penguin.w + 45) {
+        penguin.x = canvas.width - penguin.w + 45;
+    }
 
     let oyunHizi = (puan < 100) ? 3 : 3 + (puan - 100) * 0.05;
     let uretimSikligi = (puan < 100) ? 80 : 55;
