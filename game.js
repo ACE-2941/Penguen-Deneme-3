@@ -23,7 +23,6 @@ const penguin = {
     y: 500,
     w: 100, 
     h: 100,
-    // Hitbox: Penguenin tam gövdesini temsil eden alan (Görselden daha küçük)
     hitW: 40, 
     hitH: 60,
     frameX: 0,
@@ -78,7 +77,6 @@ function update() {
     penguin.y += penguin.velocityY;
     penguin.velocityY += penguin.gravity;
 
-    // Yer Kontrolü
     if (penguin.y > 500) {
         penguin.y = 500;
         penguin.isJumping = false;
@@ -87,53 +85,15 @@ function update() {
         penguin.maxFrames = 5;
     }
 
-    // --- KENAR DÜZELTMESİ BURADA ---
-    // SOL KENAR: Penguenin yarısı dışarı çıkana kadar izin verir (Tam kenara dayanır)
-    if (penguin.x < -45) {
-        penguin.x = -45;
-    }
-
-    // SAĞ KENAR: Penguenin yarısı dışarı çıkana kadar izin verir (Tam kenara dayanır)
-    // 360 (ekran genişliği) - 100 (penguen) + 45 (pay) = 305
-    if (penguin.x > canvas.width - penguin.w + 45) {
-        penguin.x = canvas.width - penguin.w + 45;
-    }
+    // --- EN KENARA GİTME AYARI ---
+    // Eğer penguen hala kenara değmiyorsa -50 ve +50 rakamlarını büyütebilirsin.
+    if (penguin.x < -50) penguin.x = -50;
+    if (penguin.x > canvas.width - penguin.w + 50) penguin.x = canvas.width - penguin.w + 50;
 
     let oyunHizi = (puan < 100) ? 3 : 3 + (puan - 100) * 0.05;
     let uretimSikligi = (puan < 100) ? 80 : 55;
 
     if (++timer > uretimSikligi) {
-        obstacles.push({ x: Math.random() * (canvas.width - 50), y: -100, w: 50, h: 80 });
-        timer = 0;
-    }
-
-    obstacles.forEach((o, i) => {
-        o.y += oyunHizi;
-        if (o.y > canvas.height) {
-            obstacles.splice(i, 1);
-            puan++;
-        }
-        
-        // Hassas çarpışma (Buz penguenin gövdesine değmeli)
-        if (penguin.x + 35 < o.x + o.w && penguin.x + 65 > o.x && 
-            penguin.y + 25 < o.y + o.h && penguin.y + 85 > o.y) {
-            gameActive = false;
-        }
-    });
-
-    penguin.fps++;
-    if (penguin.fps % penguin.stagger === 0) {
-        penguin.frameX = (penguin.frameX + 1) % penguin.maxFrames;
-    }
-    // KENAR DÜZELTME: Penguen artık tam duvara değene kadar gidebilir
-    if (penguin.x < -30) penguin.x = -30;
-    if (penguin.x > canvas.width - penguin.w + 30) penguin.x = canvas.width - penguin.w + 30;
-
-    let oyunHizi = (puan < 100) ? 3 : 3 + (puan - 100) * 0.05;
-    let uretimSikligi = (puan < 100) ? 80 : 55;
-
-    if (++timer > uretimSikligi) {
-        // Buzun çarpışma alanını (hitbox) resimden biraz daha dar yapıyoruz
         obstacles.push({ x: Math.random() * (canvas.width - 50), y: -100, w: 50, h: 80, hitW: 30, hitH: 60 });
         timer = 0;
     }
@@ -145,8 +105,6 @@ function update() {
             puan++;
         }
         
-        // HASSAS ÇARPIŞMA HESABI
-        // Penguenin merkezi ile Buzun merkezini kontrol ediyoruz
         let pCenterX = penguin.x + penguin.w / 2;
         let pCenterY = penguin.y + penguin.h / 2;
         let bCenterX = o.x + o.w / 2;
@@ -169,16 +127,13 @@ function draw() {
 
     if (bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
-    // Penguen Çizimi
     if (penguinImg.complete) {
         ctx.drawImage(penguinImg, penguin.frameX * 64, penguin.frameY * 40, 64, 40, penguin.x, penguin.y, penguin.w, penguin.h);
     }
 
-    // Buz Çizimi ve Siyah Çerçeve
     obstacles.forEach(o => {
         if (buzImg.complete) {
             ctx.save();
-            // Resmin etrafına siyah ince bir gölge (kontur niyetine)
             ctx.shadowBlur = 4;
             ctx.shadowColor = "black";
             ctx.drawImage(buzImg, o.x, o.y, o.w, o.h);
@@ -186,13 +141,11 @@ function draw() {
         }
     });
 
-    // Puan
     ctx.fillStyle = "white";
     ctx.font = "bold 26px Arial";
     ctx.shadowBlur = 4;
     ctx.shadowColor = "black";
     ctx.fillText("PUAN: " + puan, 20, 45);
-    ctx.shadowBlur = 0;
 
     if (!gameActive) {
         ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
@@ -213,5 +166,6 @@ function gameLoop() {
     draw();
     requestAnimationFrame(gameLoop);
 }
+
 canvas.addEventListener("mousedown", () => { if (!gameActive) resetGame(); });
 gameLoop();
