@@ -21,7 +21,7 @@ buzImg.src = "assets/buz.png"; // Yeni sarkıt PNG dosyan
 const penguin = {
     x: 130, 
     y: 500,
-    w: 100, // Penguen boyutu büyük
+    w: 200, // Penguen boyutu büyük
     h: 100,
     frameX: 0,
     frameY: 0,
