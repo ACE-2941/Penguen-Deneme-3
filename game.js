@@ -78,6 +78,7 @@ function update() {
     penguin.y += penguin.velocityY;
     penguin.velocityY += penguin.gravity;
 
+    // Yer Kontrolü
     if (penguin.y > 500) {
         penguin.y = 500;
         penguin.isJumping = false;
@@ -86,6 +87,40 @@ function update() {
         penguin.maxFrames = 5;
     }
 
+    // --- KENAR DÜZELTMESİ BURADA ---
+    // Sol tarafa tam yanaşması için (Görselindeki boşluğa göre -40'a kadar çekebilirsin)
+    if (penguin.x < -35) penguin.x = -35; 
+    
+    // Sağ tarafa tam yanaşması için
+    if (penguin.x > canvas.width - penguin.w + 35) penguin.x = canvas.width - penguin.w + 35;
+    // -------------------------------
+
+    let oyunHizi = (puan < 100) ? 3 : 3 + (puan - 100) * 0.05;
+    let uretimSikligi = (puan < 100) ? 80 : 55;
+
+    if (++timer > uretimSikligi) {
+        obstacles.push({ x: Math.random() * (canvas.width - 50), y: -100, w: 50, h: 80 });
+        timer = 0;
+    }
+
+    obstacles.forEach((o, i) => {
+        o.y += oyunHizi;
+        if (o.y > canvas.height) {
+            obstacles.splice(i, 1);
+            puan++;
+        }
+        
+        // Hassas çarpışma (Buz penguenin gövdesine değmeli)
+        if (penguin.x + 35 < o.x + o.w && penguin.x + 65 > o.x && 
+            penguin.y + 25 < o.y + o.h && penguin.y + 85 > o.y) {
+            gameActive = false;
+        }
+    });
+
+    penguin.fps++;
+    if (penguin.fps % penguin.stagger === 0) {
+        penguin.frameX = (penguin.frameX + 1) % penguin.maxFrames;
+    }
     // KENAR DÜZELTME: Penguen artık tam duvara değene kadar gidebilir
     if (penguin.x < -30) penguin.x = -30;
     if (penguin.x > canvas.width - penguin.w + 30) penguin.x = canvas.width - penguin.w + 30;
