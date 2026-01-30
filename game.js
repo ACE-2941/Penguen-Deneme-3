@@ -8,6 +8,7 @@ let puan = 0;
 let gameActive = true;
 let gameOverTimer = 0;
 
+// ASSETLER
 const penguinImg = new Image();
 penguinImg.src = "assets/penguin.png";
 
@@ -20,8 +21,11 @@ buzImg.src = "assets/buz.png";
 const penguin = {
     x: 130, 
     y: 500,
-    w: 50, 
+    w: 100, 
     h: 100,
+    // Hitbox: Penguenin tam gövdesini temsil eden alan (Görselden daha küçük)
+    hitW: 40, 
+    hitH: 60,
     frameX: 0,
     frameY: 0,
     maxFrames: 5,
@@ -82,15 +86,16 @@ function update() {
         penguin.maxFrames = 5;
     }
 
-    // 1. DÜZELTME: Kenar sınırlarını penguenin merkezine göre esnettim
-    if (penguin.x < -20) penguin.x = -20;
-    if (penguin.x > canvas.width - penguin.w + 20) penguin.x = canvas.width - penguin.w + 20;
+    // KENAR DÜZELTME: Penguen artık tam duvara değene kadar gidebilir
+    if (penguin.x < -30) penguin.x = -30;
+    if (penguin.x > canvas.width - penguin.w + 30) penguin.x = canvas.width - penguin.w + 30;
 
     let oyunHizi = (puan < 100) ? 3 : 3 + (puan - 100) * 0.05;
     let uretimSikligi = (puan < 100) ? 80 : 55;
 
     if (++timer > uretimSikligi) {
-        obstacles.push({ x: Math.random() * (canvas.width - 50), y: -100, w: 50, h: 80 });
+        // Buzun çarpışma alanını (hitbox) resimden biraz daha dar yapıyoruz
+        obstacles.push({ x: Math.random() * (canvas.width - 50), y: -100, w: 50, h: 80, hitW: 30, hitH: 60 });
         timer = 0;
     }
 
@@ -101,15 +106,15 @@ function update() {
             puan++;
         }
         
-        // 3. DÜZELTME: Hassas Çarpışma (Hitbox)
-        // Penguenin sadece merkezindeki 40px'lik alanı tehlikeli sayıyoruz
-        let pLeft = penguin.x + 35;
-        let pRight = penguin.x + 65;
-        let pTop = penguin.y + 25;
-        let pBottom = penguin.y + 85;
+        // HASSAS ÇARPIŞMA HESABI
+        // Penguenin merkezi ile Buzun merkezini kontrol ediyoruz
+        let pCenterX = penguin.x + penguin.w / 2;
+        let pCenterY = penguin.y + penguin.h / 2;
+        let bCenterX = o.x + o.w / 2;
+        let bCenterY = o.y + o.h / 2;
 
-        if (pLeft < o.x + o.w && pRight > o.x && 
-            pTop < o.y + o.h && pBottom > o.y) {
+        if (Math.abs(pCenterX - bCenterX) < (penguin.hitW + o.hitW) / 2 &&
+            Math.abs(pCenterY - bCenterY) < (penguin.hitH + o.hitH) / 2) {
             gameActive = false;
         }
     });
@@ -123,29 +128,30 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (bgImg.complete && bgImg.naturalWidth > 0) {
-        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-    }
+    if (bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
-    if (penguinImg.complete && penguinImg.naturalWidth > 0) {
+    // Penguen Çizimi
+    if (penguinImg.complete) {
         ctx.drawImage(penguinImg, penguin.frameX * 64, penguin.frameY * 40, 64, 40, penguin.x, penguin.y, penguin.w, penguin.h);
     }
 
-    // 2. DÜZELTME: Buzların etrafına siyah kontur (JS Shadow ile)
+    // Buz Çizimi ve Siyah Çerçeve
     obstacles.forEach(o => {
-        if (buzImg.complete && buzImg.naturalWidth > 0) {
+        if (buzImg.complete) {
             ctx.save();
+            // Resmin etrafına siyah ince bir gölge (kontur niyetine)
+            ctx.shadowBlur = 4;
             ctx.shadowColor = "black";
-            ctx.shadowBlur = 5; // Siyah çerçeve etkisi
             ctx.drawImage(buzImg, o.x, o.y, o.w, o.h);
             ctx.restore();
         }
     });
 
+    // Puan
     ctx.fillStyle = "white";
     ctx.font = "bold 26px Arial";
-    ctx.shadowColor = "black";
     ctx.shadowBlur = 4;
+    ctx.shadowColor = "black";
     ctx.fillText("PUAN: " + puan, 20, 45);
     ctx.shadowBlur = 0;
 
@@ -158,8 +164,7 @@ function draw() {
         ctx.fillText("Penguen Finito", canvas.width / 2, canvas.height / 2);
         ctx.fillStyle = "white";
         ctx.font = "20px Arial";
-        ctx.fillText("Puan: " + puan, canvas.width / 2, canvas.height / 2 + 50);
-        ctx.fillText("TEKRAR İÇİN TIKLA", canvas.width / 2, canvas.height / 2 + 90);
+        ctx.fillText("Yeniden başlamak için tıkla", canvas.width / 2, canvas.height / 2 + 50);
         ctx.textAlign = "left";
     }
 }
@@ -169,9 +174,5 @@ function gameLoop() {
     draw();
     requestAnimationFrame(gameLoop);
 }
-
-canvas.addEventListener("mousedown", () => {
-    if (!gameActive) resetGame();
-});
-
+canvas.addEventListener("mousedown", () => { if (!gameActive) resetGame(); });
 gameLoop();
