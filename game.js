@@ -165,7 +165,7 @@ function draw() {
         ctx.fillStyle = "white";
         ctx.font = "20px Arial";
         ctx.fillText("Puan: " + puan, canvas.width / 2, canvas.height / 2 + 50);
-        ctx.fillText("YENİDEN BAŞLAMAK İÇİN TIKLA", canvas.width / 2, canvas.height / 2 + 90);
+        ctx.fillText("EKRANA BASIVER", canvas.width / 2, canvas.height / 2 + 90);
         ctx.textAlign = "left";
     }
 }
